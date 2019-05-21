@@ -10,4 +10,4 @@ lfp_data = eeg{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)}.data;
 
 smpl_rate = eeg{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)}.samprate;
 
-ripples = detect_ripple(lfp_data, smpl_rate, 'wilson07');
+ripples = detect_ripple(lfp_data, smpl_rate, 'wilson07', true);
