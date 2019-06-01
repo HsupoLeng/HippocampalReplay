@@ -69,6 +69,12 @@ function [lfp_ripple_band, ripples] = detect_ripple(lfp, smpl_rate, start_time, 
         cross_threshold_mask = lfp_ripple_envelope > (lfp_ripple_band_mean + 3*std(lfp_ripple_envelope));
         ripple_candidates_start = find(diff(cross_threshold_mask) == 1) + 1;
         ripple_candidates_end = find(diff(cross_threshold_mask) == -1) + 1;
+        if length(ripple_candidates_start) == length(ripple_candidates_end) + 1
+            ripple_candidates_start = ripple_candidates_start(1:end-1);
+        elseif length(ripple_candidates_end) == length(ripple_candidates_start) + 1
+            ripple_candidates_end = ripple_candidates_end(2:end);
+        end
+        
         for i=1:length(ripple_candidates_start)
             ripples(i).start_idx = ripple_candidates_start(i);
             ripples(i).end_idx = ripple_candidates_end(i);

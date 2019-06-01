@@ -1,7 +1,7 @@
 clear; close all;
 %% Detect ripple and spikes in ripples from specified EEG file(s)
 animal_data_path = '../dataset/Bon';
-day = 4; epoch = 4; % tetrode = 18; 
+day = 4; epoch = 2; % tetrode = 18; 
 eeg_data_path = fullfile(animal_data_path, 'EEG');
 eeg_file_all = dir(eeg_data_path);
 eeg_file_all = {eeg_file_all(~[eeg_file_all(:).isdir]).name};
@@ -11,7 +11,7 @@ animal_file_all = dir(fullfile(animal_data_path));
 animal_file_all = {animal_file_all(~[animal_file_all(:).isdir]).name};
 spike_file_chosen = animal_file_all(contains(animal_file_all, sprintf('spikes%02d', day)));
 if length(spike_file_chosen) ~= 1
-    fprintf('Spike file not unique');
+    fprintf('Spike file not unique!');
 end
 load(fullfile(animal_data_path, spike_file_chosen{1}), 'spikes');
 tetrode_file = animal_file_all(contains(animal_file_all,'tetinfo'));
@@ -115,6 +115,23 @@ for i=1:length(ripples_by_group_tetrode)
     ripples_struct(rows_to_remove) = [];
     ripples_by_group_tetrode(i).ripples = ripples_struct; 
 end
+
+% Remove ripples that are too long (currently, >200ms)
+for i=1:length(ripples_by_group_tetrode)
+    rows_to_remove = [];
+    ripples_struct = ripples_by_group_tetrode(i).ripples;
+    for j=1:length(ripples_struct)
+        if ripples_struct(j).length_sec > 0.2
+            rows_to_remove = [rows_to_remove, j];
+        end
+    end
+    ripples_struct(rows_to_remove) = [];
+    ripples_by_group_tetrode(i).ripples = ripples_struct; 
+end
+save(sprintf('../results/ripples-day_%d-epoch_%d.mat', day, epoch), 'ripples_by_group_tetrode');
+
+spikes_in_ripple_all = convert_ripple_mat(ripples_by_group_tetrode);
+save(sprintf('../results/spikes_in_ripple_all-day_%d-epoch_%d.mat', day, epoch), 'spikes_in_ripple_all');
 %% Visualize ripples during which there are several neurons firing together
 plot_window_offset = 0.5;
 num_neuron_thres = 3;

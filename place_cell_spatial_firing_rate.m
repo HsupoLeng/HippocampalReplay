@@ -23,6 +23,8 @@ end
 
 %% test for all cells
 % tet_id=2;
+spatial_firing_rate_by_unit = struct('tetrode', nan, 'neuron', nan, 'firing_rate_map', []);
+num_unit = 0;
 for tet_id=1:length(tetrode_all)
     tet=tetrode_all(tet_id);
     unit_all=find(~cellfun(@isempty,sp_all{tet}));
@@ -39,6 +41,11 @@ for tet_id=1:length(tetrode_all)
                 sp_cnt(p(1),p(2))=sp_cnt(p(1),p(2))+1;
             end
             fr=sp_cnt./stay_time;
+            num_unit = num_unit + 1;
+            spatial_firing_rate_by_unit(num_unit).tetrode = tet;
+            spatial_firing_rate_by_unit(num_unit).neuron = unit;
+            spatial_firing_rate_by_unit(num_unit).firing_rate_map = fr'./sum(fr(:));
+
             figure('visible','off');
             imagesc(log(fr')); colormap(gray);set(gca,'YDir','normal')
             title(['day ',num2str(day),' epoch ',num2str(epoch),' tetrode ',num2str(tet),' unit ',num2str(unit)])
@@ -46,6 +53,8 @@ for tet_id=1:length(tetrode_all)
         end
     end
 end
+
+save(sprintf('../results/spatial_firing_rate_by_unit-day_%d-epoch_%d', day, epoch), 'spatial_firing_rate_by_unit');
 
 
 
