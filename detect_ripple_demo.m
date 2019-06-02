@@ -1,6 +1,6 @@
-function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
+function spikes_in_ripple_all = detect_ripple_demo(animal, day, epoch)
     %% Detect ripple and spikes in ripples from specified EEG file(s)
-    animal_data_path = '../dataset/Mil';
+    animal_data_path = fullfile('../dataset', animal);
     % day = 4; epoch = 4; % tetrode = 18; 
     eeg_data_path = fullfile(animal_data_path, 'EEG');
     eeg_file_all = dir(eeg_data_path);
@@ -130,10 +130,10 @@ function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
         ripples_struct(rows_to_remove) = [];
         ripples_by_group_tetrode(i).ripples = ripples_struct; 
     end
-    save(sprintf('../results/ripples-day_%d-epoch_%d.mat', day, epoch), 'ripples_by_group_tetrode');
+    save(sprintf('../results/%sripples-day_%d-epoch_%d.mat', animal, day, epoch), 'ripples_by_group_tetrode');
 
     spikes_in_ripple_all = convert_ripple_mat(ripples_by_group_tetrode);
-    save(sprintf('../results/spikes_in_ripple_all-day_%d-epoch_%d.mat', day, epoch), 'spikes_in_ripple_all');
+    save(sprintf('../results/%sspikes_in_ripple_all-day_%d-epoch_%d.mat', animal, day, epoch), 'spikes_in_ripple_all');
     %% Visualize ripples during which there are several neurons firing together
     %{
     plot_window_offset = 0.5;

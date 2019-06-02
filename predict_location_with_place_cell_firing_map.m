@@ -1,13 +1,13 @@
-function [accuracy, samples] = predict_location_with_place_cell_firing_map(day, epoch, start_choice_idx)
-    data_dir='../dataset/Bon/';
-    name='bon';
+function [accuracy, samples, incorrect_decision_ratio] = predict_location_with_place_cell_firing_map(animal, day, epoch, predict_opt_str, start_choice_idx, only_correct_trials)
+    data_dir= fullfile('../dataset', animal);
+    % name='bon';
     %day=4;
     %epoch=4;
-    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch);
+    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,animal,day,epoch);
 
-    load(sprintf('../results/%schoice%d-%d.mat', name, day, epoch), 'choice');
-    load(sprintf('../results/spikes_in_ripple_all-day_%d-epoch_%d.mat', day, epoch), 'spikes_in_ripple_all');
-    load(sprintf('../results/spatial_firing_rate_by_unit-day_%d-epoch_%d.mat', day, epoch), 'spatial_firing_rate_by_unit', 'p_min');
+    load(sprintf('../results/%schoice%d-%d.mat', animal, day, epoch), 'choice');
+    load(sprintf('../results/%sspikes_in_ripple_all-day_%d-epoch_%d.mat', animal, day, epoch), 'spikes_in_ripple_all');
+    load(sprintf('../results/%sspatial_firing_rate_by_unit-day_%d-epoch_%d.mat', animal, day, epoch), 'spatial_firing_rate_by_unit', 'p_min');
 
     % Convert time unit in choice to seconds
     for i=1:size(choice, 1)
@@ -19,7 +19,7 @@ function [accuracy, samples] = predict_location_with_place_cell_firing_map(day, 
     choice = choice(start_choice_idx:end, :);
     %% Predict decision in outbound or inbound trials
     regions = [-1, 0, 1];
-    predict_opt_str = 'outbound';
+    % predict_opt_str = 'outbound';
     xleft=round(55-p_min(1))+1;    % x<55 is left
     xright=round(90-p_min(1))+1;   % x>90 is right
     ycheck=round(110-p_min(2))+1; % check region if y>110
@@ -46,12 +46,37 @@ function [accuracy, samples] = predict_location_with_place_cell_firing_map(day, 
     num_samples = 1000;
     t_period_abs_idxs = find(choice(:,1)==7);
     t_idxs_to_remove = [];
+    incorrect_decision_count = 0;
     for i=1:length(t_period_abs_idxs)
-        prev_region_idx = find(choice(1:t_period_abs_idxs(i), 1) ~= 7, 1, 'last');
-        if choice(prev_region_idx, 1) ~= trial_start
+        prev_region_idxs = find(choice(1:t_period_abs_idxs(i), 1) ~= 7, 2, 'last');
+        next_region_idx = find(choice(t_period_abs_idxs(i):end, 1) ~= 7, 1, 'first');
+        if length(prev_region_idxs) < 2 
+            t_idxs_to_remove = [t_idxs_to_remove, i];
+            continue;
+        end
+        
+        if choice(prev_region_idxs(2), 1) ~= trial_start
             t_idxs_to_remove = [t_idxs_to_remove, i];
         end
+        
+        if choice(prev_region_idxs(2), 1) == 0
+            if length(unique(choice([prev_region_idxs; t_period_abs_idxs(i)+next_region_idx-1], 1))) ~=3
+                incorrect_decision_count = incorrect_decision_count + 1;
+                if trial_start == 0 && only_correct_trials
+                    t_idxs_to_remove = [t_idxs_to_remove, i]; 
+                end
+            end
+        else
+            if choice(t_period_abs_idxs(i)+next_region_idx-1, 1) ~= 0
+                incorrect_decision_count = incorrect_decision_count + 1;
+                if trial_start ~= 0 && only_correct_trials
+                    t_idxs_to_remove = [t_idxs_to_remove, i]; 
+                end
+            end
+        end
     end
+    
+    incorrect_decision_ratio = incorrect_decision_count/length(t_period_abs_idxs);
     t_period_abs_idxs(t_idxs_to_remove) = [];
     t_boundaries = choice(t_period_abs_idxs, 2:3);
     t_periods = cellfun(@(boundary) boundary(1):(1/30):boundary(2), num2cell(t_boundaries, 2), 'UniformOutput', false);
@@ -96,6 +121,8 @@ function [accuracy, samples] = predict_location_with_place_cell_firing_map(day, 
     %         set(gca,'YDir','normal');
         end
     end
+    
+    % samples()
     samples(isnan([samples(:).pred_region])) = [];
     accuracy = sum([samples().next_region] == [samples(:).pred_region])/length(samples);
 end

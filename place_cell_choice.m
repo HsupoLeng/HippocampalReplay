@@ -1,9 +1,9 @@
-function choice = place_cell_choice(day, epoch)
-    data_dir='../dataset/Bon/';
-    name='bon';
+function choice = place_cell_choice(animal, day, epoch)
+    data_dir= fullfile('../dataset', animal);
+    %name='bon';
     %day=4;
     %epoch=4;
-    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch);
+    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,animal,day,epoch);
     tetrode_all=find(~cellfun(@isempty,sp_all));
 
     %% animated plot of animal's trajectory
@@ -25,7 +25,7 @@ function choice = place_cell_choice(day, epoch)
     in_mid=(pos_p(:,2)>ycheck).*(pos_p(:,1)>xleft).*(pos_p(:,1)<xright);
     in_t = (pos_p(:,2)<ycheck-1).*(pos_p(:,1)>xleft).*(pos_p(:,1)<xright);
     % % check with plots
-    % figure;
+    % `;
     % scatter(pos_p(in_left==1,1),pos_p(in_left==1,2),'x')
     % xlim([20,140]);ylim([40,180]);
     % hold on
@@ -80,7 +80,7 @@ function choice = place_cell_choice(day, epoch)
     end
     choice(end,3)=choice(end,3)-1;
     clearvars choice_all
-    save(['../results/',name,'choice',num2str(day),'-',num2str(epoch),'.mat'],'choice')
+    save(['../results/',animal,'choice',num2str(day),'-',num2str(epoch),'.mat'],'choice')
 end
 
 
