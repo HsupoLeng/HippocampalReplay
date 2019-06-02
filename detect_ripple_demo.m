@@ -1,6 +1,6 @@
 function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
     %% Detect ripple and spikes in ripples from specified EEG file(s)
-    animal_data_path = '../dataset/Bon';
+    animal_data_path = '../dataset/Mil';
     % day = 4; epoch = 4; % tetrode = 18; 
     eeg_data_path = fullfile(animal_data_path, 'EEG');
     eeg_file_all = dir(eeg_data_path);
@@ -33,6 +33,8 @@ function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
         if isempty(tetinfo{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)})
             continue;
         elseif ~tetinfo{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)}.numcells
+            continue;
+        elseif ~any(strcmp(fieldnames(tetinfo{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)}), 'area'))
             continue;
         elseif strcmp(tetinfo{lfp_data_idxs(1)}{lfp_data_idxs(2)}{lfp_data_idxs(3)}.area, 'Reference')
             continue;
