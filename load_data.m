@@ -1,5 +1,5 @@
 function [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch)
-    task_path=[data_dir,name,'task',num2str(day,'%02d')];
+    task_path= fullfile(data_dir, [name,'task',num2str(day,'%02d')]);
     load(task_path)
 %     for epoch=1:7
     task_type=task{day}{epoch}.type;
@@ -12,7 +12,7 @@ function [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch)
 %     end
 
     % load position
-    pos_path=[data_dir,name,'pos',num2str(day,'%02d')];
+    pos_path= fullfile(data_dir,[name,'pos',num2str(day,'%02d')]);
     load(pos_path)
     pos_t=pos{day}{epoch}.data(:,1);
     pos_p=pos{day}{epoch}.data(:,2:3);
@@ -20,7 +20,7 @@ function [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch)
     f_pos=30; %Hz
 
     % load spikes
-    sp_path=[data_dir,name,'spikes',num2str(day,'%02d')];
+    sp_path= fullfile(data_dir,[name,'spikes',num2str(day,'%02d')]);
     load(sp_path)
     sp_all=spikes{day}{epoch};
 end

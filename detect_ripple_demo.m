@@ -1,6 +1,6 @@
-function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
+function spikes_in_ripple_all = detect_ripple_demo(animal, day, epoch)
     %% Detect ripple and spikes in ripples from specified EEG file(s)
-    animal_data_path = '../dataset/Mil';
+    animal_data_path = fullfile('../dataset', animal);
     % day = 4; epoch = 4; % tetrode = 18; 
     eeg_data_path = fullfile(animal_data_path, 'EEG');
     eeg_file_all = dir(eeg_data_path);
@@ -130,45 +130,45 @@ function spikes_in_ripple_all = detect_ripple_demo(day, epoch)
         ripples_struct(rows_to_remove) = [];
         ripples_by_group_tetrode(i).ripples = ripples_struct; 
     end
-    save(sprintf('../results/ripples-day_%d-epoch_%d.mat', day, epoch), 'ripples_by_group_tetrode');
+    save(sprintf('../results/%sripples-day_%d-epoch_%d.mat', animal, day, epoch), 'ripples_by_group_tetrode');
 
     spikes_in_ripple_all = convert_ripple_mat(ripples_by_group_tetrode);
-    save(sprintf('../results/spikes_in_ripple_all-day_%d-epoch_%d.mat', day, epoch), 'spikes_in_ripple_all');
+    save(sprintf('../results/%sspikes_in_ripple_all-day_%d-epoch_%d.mat', animal, day, epoch), 'spikes_in_ripple_all');
     %% Visualize ripples during which there are several neurons firing together
-    %{
-    plot_window_offset = 0.5;
-    num_neuron_thres = 3;
-    for j=1:length(ripples_by_group_tetrode)
-        ripples = ripples_by_group_tetrode(j).ripples;
-        ripple_sel_mask = find(arrayfun(@(s) length(s.spike_locs)>=num_neuron_thres, ripples));
-        for k=1:length(ripple_sel_mask)
-            i = ripple_sel_mask(k);
-            figure();
-            subplot(2,1,1);
-            hold on;
-            for l=1:length(ripples_by_group_tetrode(j).tetrodes)
-                tetrode_idx = find([lfp_ripple_band_by_tetrode(:).tetrode]==ripples_by_group_tetrode(j).tetrodes(l));
-                plot(linspace(ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset, ripples(i).length_idx+1), ...
-                    lfp_ripple_band_by_tetrode(tetrode_idx).lfp_ripple_band(ripples(i).start_idx:ripples(i).end_idx));
-            end
-            hold off
-            xlim([ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset]);
-            legend(strcat('Tetrode ', cellstr(num2str(ripples_by_group_tetrode(j).tetrodes'))));
-            xlabel('Time (sec)');
-            ylabel('Voltage ')
-            subplot(2,1,2);
-            hold on;
-            for l=1:length(ripples(i).spike_locs)
-                raster(ripples(i).spike_locs{l}, l-1, 'k', []);
-            end
-            hold off;
-            xlim([ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset]);
-            ylim([0, length(ripples(i).spike_locs)]);
-            yticks((1:length(ripples(i).spike_locs))-0.5);
-            yticklabels(cellfun(@(p) sprintf('Tet.%dNeu.%d', p(1), p(2)), num2cell(ripples(i).neuron_ids, 2), 'UniformOutput', false));
-            xlabel('Time (sec)');
-            ylabel('Putative neuron')
-        end
-    end
-    %}
+    
+%     plot_window_offset = 0.5;
+%     num_neuron_thres = 3;
+%     for j=1:length(ripples_by_group_tetrode)
+%         ripples = ripples_by_group_tetrode(j).ripples;
+%         ripple_sel_mask = find(arrayfun(@(s) length(s.spike_locs)>=num_neuron_thres, ripples));
+%         for k=1:length(ripple_sel_mask)
+%             i = ripple_sel_mask(k);
+%             figure();
+%             subplot(2,1,1);
+%             hold on;
+%             for l=1:length(ripples_by_group_tetrode(j).tetrodes)
+%                 tetrode_idx = find([lfp_ripple_band_by_tetrode(:).tetrode]==ripples_by_group_tetrode(j).tetrodes(l));
+%                 plot(linspace(ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset, ripples(i).length_idx+1), ...
+%                     lfp_ripple_band_by_tetrode(tetrode_idx).lfp_ripple_band(ripples(i).start_idx:ripples(i).end_idx));
+%             end
+%             hold off
+%             xlim([ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset]);
+%             legend(strcat('Tetrode ', cellstr(num2str(ripples_by_group_tetrode(j).tetrodes'))));
+%             xlabel('Time (sec)');
+%             ylabel('Voltage ')
+%             subplot(2,1,2);
+%             hold on;
+%             for l=1:length(ripples(i).spike_locs)
+%                 raster(ripples(i).spike_locs{l}, l-1, 'k', []);
+%             end
+%             hold off;
+%             xlim([ripples(i).start_sec-plot_window_offset, ripples(i).end_sec+plot_window_offset]);
+%             ylim([0, length(ripples(i).spike_locs)]);
+%             yticks((1:length(ripples(i).spike_locs))-0.5);
+%             yticklabels(cellfun(@(p) sprintf('Tet.%dNeu.%d', p(1), p(2)), num2cell(ripples(i).neuron_ids, 2), 'UniformOutput', false));
+%             xlabel('Time (sec)');
+%             ylabel('Putative neuron')
+%         end
+%     end
+    
 end

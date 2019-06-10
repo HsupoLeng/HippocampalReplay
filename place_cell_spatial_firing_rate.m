@@ -1,9 +1,9 @@
-function [spatial_firing_rate_by_unit, p_min] = place_cell_spatial_firing_rate(day, epoch)
-    data_dir='../dataset/Bon/';
-    name='bon';
+function [spatial_firing_rate_by_unit, p_min] = place_cell_spatial_firing_rate(animal, day, epoch)
+    data_dir= fullfile('../dataset/', animal);
+    %name='bon';
     %day=4;
     %epoch=4;
-    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch);
+    [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,animal,day,epoch);
     tetrode_all=find(~cellfun(@isempty,sp_all));
 
     %% init map & count time spent in every grid
@@ -46,15 +46,15 @@ function [spatial_firing_rate_by_unit, p_min] = place_cell_spatial_firing_rate(d
                 spatial_firing_rate_by_unit(num_unit).neuron = unit;
                 spatial_firing_rate_by_unit(num_unit).firing_rate_map = fr./sum(fr(:)+eps);
 
-                figure('visible','off');
-                imagesc(log(fr')); colormap(gray);set(gca,'YDir','normal')
-                title(['day ',num2str(day),' epoch ',num2str(epoch),' tetrode ',num2str(tet),' unit ',num2str(unit)])
-                saveas(gcf,['../results/',num2str(day),'-',num2str(epoch),'-',num2str(tet),'-',num2str(unit),'.png'])
+%                 figure('visible','off');
+%                 imagesc(log(fr')); colormap(hot);set(gca,'YDir','normal')
+%                 title(['day ',num2str(day),' epoch ',num2str(epoch),' tetrode ',num2str(tet),' unit ',num2str(unit)])
+%                 saveas(gcf,['../results/',num2str(day),'-',num2str(epoch),'-',num2str(tet),'-',num2str(unit),'.png'])
             end
         end
     end
 
-    save(sprintf('../results/spatial_firing_rate_by_unit-day_%d-epoch_%d', day, epoch), 'spatial_firing_rate_by_unit', 'p_min');
+    save(sprintf('../results/%sspatial_firing_rate_by_unit-day_%d-epoch_%d', animal, day, epoch), 'spatial_firing_rate_by_unit', 'p_min');
 end
 
 
