@@ -23,7 +23,7 @@ function choice = place_cell_choice(animal, day, epoch)
     in_left=(pos_p(:,2)>ycheck).*(pos_p(:,1)<xleft);
     in_right=(pos_p(:,2)>ycheck).*(pos_p(:,1)>xright);
     in_mid=(pos_p(:,2)>ycheck).*(pos_p(:,1)>xleft).*(pos_p(:,1)<xright);
-    in_t = (pos_p(:,2)<ycheck-1).*(pos_p(:,1)>xleft).*(pos_p(:,1)<xright);
+    in_t = (pos_p(:,2)<ycheck-10).*(pos_p(:,1)>xleft).*(pos_p(:,1)<xright);
     % % check with plots
     % `;
     % scatter(pos_p(in_left==1,1),pos_p(in_left==1,2),'x')

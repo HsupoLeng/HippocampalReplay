@@ -43,32 +43,43 @@ function [accuracy, samples, incorrect_decision_ratio] = predict_location_with_p
     end
     candidates = regions(regions~=trial_start);
 
-    num_samples = 1000;
+    num_samples = 300;
     t_period_abs_idxs = find(choice(:,1)==7);
     t_idxs_to_remove = [];
     incorrect_decision_count = 0;
+    outbound_trial_count = 0;
+    inbound_trial_count = 0;
+    discarded_trial_count = 0;
     for i=1:length(t_period_abs_idxs)
-        prev_region_idxs = find(choice(1:t_period_abs_idxs(i), 1) ~= 7, 2, 'last');
+        prev_region_idxs = find(choice(1:t_period_abs_idxs(i), 1) ~= 7, 3, 'last');
         next_region_idx = find(choice(t_period_abs_idxs(i):end, 1) ~= 7, 1, 'first');
-        if length(prev_region_idxs) < 2 
+        if length(prev_region_idxs) < 3  || isempty(next_region_idx)
             t_idxs_to_remove = [t_idxs_to_remove, i];
+            discarded_trial_count = discarded_trial_count + 1;
             continue;
         end
         
-        if choice(prev_region_idxs(2), 1) ~= trial_start
+        if choice(prev_region_idxs(3), 1) ~= trial_start
             t_idxs_to_remove = [t_idxs_to_remove, i];
         end
         
-        if choice(prev_region_idxs(2), 1) == 0
-            if length(unique(choice([prev_region_idxs; t_period_abs_idxs(i)+next_region_idx-1], 1))) ~=3
+        if choice(t_period_abs_idxs(i)+next_region_idx-1, 1) == trial_start
+            t_idxs_to_remove = [t_idxs_to_remove, i]; 
+        end
+        
+        if choice(prev_region_idxs(3), 1) == 0
+            outbound_trial_count = outbound_trial_count + 1;
+            if (length(unique(choice([prev_region_idxs(2:3); t_period_abs_idxs(i)+next_region_idx-1], 1))) ~=3) || ...
+                    choice(prev_region_idxs(1), 1) ~= 0
                 incorrect_decision_count = incorrect_decision_count + 1;
                 if trial_start == 0 && only_correct_trials
                     t_idxs_to_remove = [t_idxs_to_remove, i]; 
                 end
-            end
+            end         
         else
+            inbound_trial_count = inbound_trial_count + 1;
             if choice(t_period_abs_idxs(i)+next_region_idx-1, 1) ~= 0
-                incorrect_decision_count = incorrect_decision_count + 1;
+                % incorrect_decision_count = incorrect_decision_count + 1;
                 if trial_start ~= 0 && only_correct_trials
                     t_idxs_to_remove = [t_idxs_to_remove, i]; 
                 end
@@ -76,7 +87,14 @@ function [accuracy, samples, incorrect_decision_ratio] = predict_location_with_p
         end
     end
     
-    incorrect_decision_ratio = incorrect_decision_count/length(t_period_abs_idxs);
+    if trial_start == 0
+        other_trial_count = inbound_trial_count;
+    else
+        other_trial_count = outbound_trial_count;
+    end
+    
+    t_idxs_to_remove = unique(t_idxs_to_remove);
+    incorrect_decision_ratio = incorrect_decision_count/(length(t_period_abs_idxs) - discarded_trial_count - other_trial_count);
     t_period_abs_idxs(t_idxs_to_remove) = [];
     t_boundaries = choice(t_period_abs_idxs, 2:3);
     t_periods = cellfun(@(boundary) boundary(1):(1/30):boundary(2), num2cell(t_boundaries, 2), 'UniformOutput', false);
@@ -124,5 +142,5 @@ function [accuracy, samples, incorrect_decision_ratio] = predict_location_with_p
     
     % samples()
     samples(isnan([samples(:).pred_region])) = [];
-    accuracy = sum([samples().next_region] == [samples(:).pred_region])/length(samples);
+    accuracy = sum([samples(:).next_region] == [samples(:).pred_region])/length(samples);
 end

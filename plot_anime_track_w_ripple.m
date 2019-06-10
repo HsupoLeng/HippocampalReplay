@@ -5,7 +5,7 @@ name='bon';
 day=4;
 epoch=2;
 [pos_t,pos_p,pos_v,sp_all]=load_data(data_dir,name,day,epoch);
-load(fullfile(results_dir, sprintf('ripples-day_%d-epoch_%d.mat', day, epoch)), 'ripples_by_group_tetrode');
+load(fullfile(results_dir, sprintf('%sripples-day_%d-epoch_%d.mat', name, day, epoch)), 'ripples_by_group_tetrode');
 
 %% Visualize spatial frequency of ripple occurence
 acc=0; % # after decimal point
@@ -22,13 +22,13 @@ for i=1400:length(pos_t)
     end
 end
 
-save(sprintf('ripple_spatial_count-day_%d-epoch_%d.mat', day, epoch), 'ripple_count');
+save(sprintf('ripple_with_spike_spatial_count-day_%d-epoch_%d.mat', day, epoch), 'ripple_count');
 
 for i=1:size(ripple_count, 3)
     figure();
     imagesc(log(ripple_count(:, :, i)'));
     set(gca,'YDir','normal');
-    colormap gray;
+    colormap hot;
     title(sprintf('Spatial map of ripple with spikes on tetrode group %d', i));
     colorbar;
     saveas(gcf, sprintf('../results/ripple_spatial_count-tetrode_group_%d-day_%d-epoch_%d.png', i, day, epoch));
@@ -37,13 +37,15 @@ end
 figure();
 imagesc(log(sum(ripple_count, 3)'));
 set(gca,'YDir','normal');
-colormap gray;
+colormap hot;
 title('Spatial map of ripple with spikes over all tetrodes');
 colorbar;
 saveas(gcf, sprintf('../results/ripple_spatial_count-all-day_%d-epoch_%d.png', day, epoch));
 
 %% animated plot of animal's trajectory, overlaid with ripple occurences
-figure();
+filename = '../results/traj_overlay_ripple_w_spikes.gif';
+gif_start_frame = 2000;
+h = figure();
 for i=1400:length(pos_t)-16
     for j=1:length(ripples_by_group_tetrode)
         ripples = ripples_by_group_tetrode(j).ripples;
@@ -60,6 +62,18 @@ for i=1400:length(pos_t)-16
     plot(pos_p(i:i+16,1),pos_p(i:i+16,2), 'Color', traj_color, 'LineWidth', 2);
     hold off;
     xlim([20,140]);ylim([40,180]);
+    xticks([40,75,110])
+    xticklabels({'L','M','R'})
+    yticks([])
     title(num2str(i))
     drawnow limitrate;
+    
+    frame=getframe(h);
+    im=frame2im(frame);
+    [A,map] = rgb2ind(im,256);
+    if i == gif_start_frame
+        imwrite(A,map,filename,'gif','LoopCount',Inf,'DelayTime',0.01);
+    elseif i> gif_start_frame
+        imwrite(A,map,filename,'gif','WriteMode','append','DelayTime',0.01);
+    end
 end

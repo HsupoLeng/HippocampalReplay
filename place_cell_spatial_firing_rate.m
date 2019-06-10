@@ -46,10 +46,10 @@ function [spatial_firing_rate_by_unit, p_min] = place_cell_spatial_firing_rate(a
                 spatial_firing_rate_by_unit(num_unit).neuron = unit;
                 spatial_firing_rate_by_unit(num_unit).firing_rate_map = fr./sum(fr(:)+eps);
 
-                %figure('visible','off');
-                %imagesc(log(fr')); colormap(gray);set(gca,'YDir','normal')
-                %title(['day ',num2str(day),' epoch ',num2str(epoch),' tetrode ',num2str(tet),' unit ',num2str(unit)])
-                %saveas(gcf,['../results/',num2str(day),'-',num2str(epoch),'-',num2str(tet),'-',num2str(unit),'.png'])
+%                 figure('visible','off');
+%                 imagesc(log(fr')); colormap(hot);set(gca,'YDir','normal')
+%                 title(['day ',num2str(day),' epoch ',num2str(epoch),' tetrode ',num2str(tet),' unit ',num2str(unit)])
+%                 saveas(gcf,['../results/',num2str(day),'-',num2str(epoch),'-',num2str(tet),'-',num2str(unit),'.png'])
             end
         end
     end
