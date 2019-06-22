@@ -8,3 +8,6 @@ The dataset we use is collected by Karlsson et al. [\[1\]](http://crcns.org/data
 ## Running the code
 Names of most programs in this repository indicate their respective purposes. To run the prediction algorithm, run the script `run_predict_location_with_place_cell_firing_map` in MATLAB. 
 
+## Related material
+For an overview of the project, see the [presentation](https://drive.google.com/open?id=11q5c6uf_kDDwtQPS7ICLhBfLMbhvM9NJ) prepared by Yixiu and me; for more details, refer to [our project report](https://drive.google.com/open?id=1FlzVi7bptmzZ2e-BIrKuq04Ur7wImdgg). 
+
